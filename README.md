@@ -89,6 +89,24 @@ One language, **TypeScript**, everywhere so the agent logic is shared:
 
 Back-of-envelope estimate: a screenshot is about 1.5–2k input tokens. One check every 30 s for an hour is about 120 checks, roughly **$1/hr on Opus 5.5** or about **$0.03/hr on Haiku 5.5**. The URL and DOM rules (steps 2–3) catch most violations for free, so screenshot checks can be infrequent.
 
+## Atreyu's approach this week
+
+**iPhone: lock everything down except our site.**
+- Screen Time blocks every distracting app and sets Safari to "Allowed Websites Only". The only allowed site is our web app (plus the YouTube player domains it needs).
+- **YouTube** works only inside our site: search there, Shorts are filtered out, and videos play in the embedded player.
+- **Reddit** isn't reachable directly. Our site pulls the relevant posts and either shows an **AI summary** (e.g. "best ramen spots in Boston, according to r/boston") or shows the posts in our own **minimal Reddit viewer**, with no feed and no infinite scroll.
+- **Facebook** stays fully blocked on iPhone for now.
+
+**Computer: allow the three sites directly, with short-form banned.**
+- Our web app runs here too, but YouTube, Reddit, and Facebook can also be opened directly.
+- Short-form content is blocked: YouTube Shorts and Facebook Reels/Watch.
+- Every other distracting site stays blocked.
+
+**Open questions to check this week:**
+- Does an embedded YouTube video still play on iPhone when Screen Time blocks `youtube.com`?
+- Mac Screen Time blocks whole domains, so it can't block only `/shorts`. Blocking short-form on the computer will probably need a small browser extension or content-blocker rules (e.g. uBlock Origin filters).
+- Reddit data source: use the official Reddit API, since scraping is against Reddit's terms and can get blocked.
+
 ## Suggested roadmap
 
 1. **Spike:** confirm a YouTube embed plays on our site while Screen Time blocks `youtube.com` (Safari on an iPhone and a Mac).
