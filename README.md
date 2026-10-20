@@ -10,6 +10,33 @@ An anti-doomscrolling wrapper. Before you open Facebook, Reddit, or YouTube, you
 | Reddit | A specific task, e.g. "find a good ramen place in Boston" | Endless browsing of the front page or r/all |
 | YouTube | Long-form videos that match the stated intent | Shorts, wandering through the recommendations sidebar |
 
+## Chosen approach: web app + Screen Time
+
+Instead of an extension, we build a **web app** that the user's OS-level blocker (Screen Time on iPhone and Mac, Digital Wellbeing or Family Link on Android) whitelists, while the real Facebook, Reddit, and YouTube apps and sites are blocked. All content goes through our app, so the agent sees exactly what the user is about to open.
+
+### What works in a web app, per site
+
+| Site | Can we iframe the real site? | Plan |
+|---|---|---|
+| **YouTube** | Only the embed player (`youtube-nocookie.com/embed/<id>`); the homepage, search, and Shorts can't be framed | Build our own YouTube UI. Search through the **YouTube Data API v3**, drop Shorts (duration ≤ 3 min), have the agent check each video's title, channel, and description against the session contract, then play it in the embed player. There's no recommendations feed, so there's nothing to fall into. **Very doable.** |
+| **Reddit** | No (`X-Frame-Options` blocks it) | Let the agent do the browsing: "find a ramen place in Boston" → the agent searches Reddit (web search restricted to `reddit.com`, or the Reddit API), reads the threads, and returns a summary with the top picks. The user never scrolls. Reddit's API now requires registering an app and may need approval. |
+| **Facebook Marketplace** | No, and there's no public Marketplace API | **The gap in this approach.** Options: a time-boxed Screen Time exception for `facebook.com/marketplace` that the agent tells the user to unlock, or wait for the native wrapper app (a native WebView can load Facebook). |
+
+### Screen Time setup
+- **Block:** the YouTube, Facebook, and Reddit apps (App Limits, or Content & Privacy → Apps).
+- **Websites:** set "Allowed Websites Only" and allow our app's domain plus the YouTube player domains (`youtube-nocookie.com`, `googlevideo.com`, `ytimg.com`). **This needs testing first.** We don't yet know whether Screen Time's web filter blocks embedded iframes from non-allowed domains.
+- **Passcode:** have a groupmate or friend set the Screen Time passcode so the user can't just turn it off.
+
+### Why we mostly don't need screenshots now
+A web page can't screenshot a cross-origin iframe. But because every video and search goes through our backend, the agent judges **metadata** (video title, channel, description, duration, search query) instead of pixels. That is cheaper, faster, and more reliable. If we need screenshots later, the browser's screen-capture API (`getDisplayMedia`, desktop only, the user approves it each session) can take periodic frames.
+
+### Stack for this approach
+- **Next.js (App Router) on Vercel**, in TypeScript. Server routes keep the API keys secret.
+- **Claude** (`@anthropic-ai/sdk`) for the intent conversation and for judging each piece of content against the session contract.
+- **YouTube Data API v3** for search and video details. The free quota is 10,000 units a day, and each search costs 100 units, so we get **about 100 searches a day** per project unless we request more.
+- **YouTube IFrame Player API** to play videos and detect when one ends (so the user goes back to our UI, not YouTube's autoplay).
+- A database (e.g. Neon Postgres) for users, session contracts, and logs.
+
 ## Is this plausible?
 
 **Yes, but how much is possible depends on the platform.** The agent part (talk through an intent, then judge a screenshot against it) is very doable with current vision LLMs. The hard part is how much control the OS lets us have over *other* apps:
@@ -64,24 +91,11 @@ Back-of-envelope estimate: a screenshot is about 1.5–2k input tokens. One chec
 
 ## Suggested roadmap
 
-1. **MVP:** Chrome extension with URL rules for the 3 sites, plus a popup where you state your intent.
-2. Add the agent conversation and session contract (backend + Claude).
-3. Add periodic screenshot checks and the revoke/cooldown flow.
-4. Android wrapper app (WebViews plus accessibility-based blocking of the native apps).
-5. iOS wrapper app (WebViews plus Screen Time blocking of the native apps).
-
-## Getting started
-
-```bash
-git clone git@github.com:atreyusutton/screen-block-wrapper.git
-cd screen-block-wrapper
-```
-
-## Collaborating
-
-1. Create a branch for your work: `git checkout -b feat/my-change`
-2. Commit and push: `git push -u origin feat/my-change`
-3. Open a pull request on GitHub for review before merging into `main`.
+1. **Spike:** confirm a YouTube embed plays on our site while Screen Time blocks `youtube.com` (Safari on an iPhone and a Mac).
+2. **MVP:** Next.js app with the agent conversation, session contract, and YouTube search + playback (Shorts filtered, every video checked by the agent).
+3. Reddit "agent does the browsing" mode.
+4. Facebook Marketplace: time-boxed unlock flow.
+5. Later: native wrapper apps (Android, then iOS) for full Facebook support and stronger blocking.
 
 ## Team
 
