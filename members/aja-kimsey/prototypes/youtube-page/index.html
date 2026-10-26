@@ -1,0 +1,1045 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wrapper</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #6b6b6b;
+      --faint: #a3a3a3;
+      --line: #e6e6e6;
+      --chip: #f4f4f4;
+      --button: #111111;
+      --button-text: #ffffff;
+      --ok: #1f7a4d;
+      --no: #b3261e;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f0f0f;
+        --text: #f2f2f2;
+        --muted: #9a9a9a;
+        --faint: #5e5e5e;
+        --line: #262626;
+        --chip: #1c1c1c;
+        --button: #f2f2f2;
+        --button-text: #0f0f0f;
+        --ok: #5cc98f;
+        --no: #f28b82;
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 16px;
+    }
+
+    button { font: inherit; }
+
+    /* ---------- Header: wordmark left, sources right ---------- */
+    header {
+      width: 100%;
+      max-width: 880px;
+      padding: 24px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .wordmark {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--chip);
+      padding: 4px;
+      border-radius: 999px;
+    }
+
+    .tab {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 999px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .tab:hover { color: var(--text); }
+    .tab[aria-selected="true"] { background: var(--button); color: var(--button-text); }
+    .tab:disabled { cursor: not-allowed; opacity: 0.5; }
+
+    /* ---------- Search ---------- */
+    .search {
+      width: 100%;
+      max-width: 640px;
+      margin: 48px 0 0;
+      text-align: center;
+    }
+
+    .pill-form {
+      display: flex;
+      gap: 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 6px 6px 20px;
+      background: var(--bg);
+    }
+
+    .pill-form:focus-within { border-color: var(--muted); }
+
+    .pill-form input {
+      flex: 1;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      font-size: 16px;
+    }
+
+    .pill-form input::placeholder { color: var(--faint); }
+    .pill-form input:disabled { cursor: not-allowed; }
+
+    .go {
+      appearance: none;
+      border: 0;
+      background: var(--button);
+      color: var(--button-text);
+      font-size: 14px;
+      font-weight: 500;
+      padding: 10px 20px;
+      border-radius: 999px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .go:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .hint { font-size: 13px; color: var(--muted); margin: 12px 0 0; }
+
+    .examples {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin: 14px 0 0;
+    }
+
+    .examples[hidden] { display: none; }
+
+    .examples .try { font-size: 12px; color: var(--faint); align-self: center; }
+
+    .ex {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--muted);
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    .ex:hover { color: var(--text); border-color: var(--muted); }
+
+    /* ---------- Main area ---------- */
+    main {
+      width: 100%;
+      max-width: 880px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 40px 0 56px;
+    }
+
+    .empty { color: var(--faint); font-size: 14px; margin-top: 40px; }
+
+    .thinking {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      color: var(--muted);
+      font-size: 14px;
+      margin: 24px 0;
+    }
+
+    .dots { display: flex; gap: 6px; }
+    .dots span {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--muted);
+      animation: pulse 1s infinite ease-in-out;
+    }
+    .dots span:nth-child(2) { animation-delay: 0.15s; }
+    .dots span:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes pulse {
+      0%, 80%, 100% { opacity: 0.25; transform: scale(0.85); }
+      40% { opacity: 1; transform: scale(1); }
+    }
+
+    /* ---------- Argue conversation ---------- */
+    .chat {
+      width: 100%;
+      max-width: 560px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      text-align: left;
+    }
+
+    .msg {
+      max-width: 85%;
+      padding: 11px 15px;
+      border-radius: 18px;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    .msg.user {
+      align-self: flex-end;
+      background: var(--button);
+      color: var(--button-text);
+      border-bottom-right-radius: 6px;
+    }
+
+    .msg.agent {
+      align-self: flex-start;
+      background: var(--chip);
+      border-bottom-left-radius: 6px;
+    }
+
+    .msg .who {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .msg.denied .who { color: var(--no); }
+
+    .reply-box { width: 100%; max-width: 560px; margin-top: 16px; }
+
+    /* ---------- Session contract ---------- */
+    .contract {
+      width: 100%;
+      max-width: 560px;
+      margin-top: 20px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 22px;
+      text-align: center;
+    }
+
+    .contract .label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ok);
+      margin: 0 0 12px;
+    }
+
+    .contract dl {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 8px 16px;
+      text-align: left;
+      margin: 0 auto 20px;
+      max-width: 420px;
+      font-size: 15px;
+    }
+
+    .contract dt { color: var(--muted); }
+    .contract dd { margin: 0; font-weight: 500; }
+
+    .row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+    /* ---------- Result ---------- */
+    .session-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 0 0 20px;
+    }
+
+    .intent {
+      display: inline-block;
+      background: var(--chip);
+      color: var(--muted);
+      font-size: 13px;
+      padding: 8px 14px;
+      border-radius: 16px;
+      max-width: 100%;
+    }
+
+    .intent strong { color: var(--text); font-weight: 500; }
+
+    .timer {
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+      padding: 8px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      color: var(--muted);
+    }
+
+    .timer.low { color: var(--no); border-color: var(--no); }
+
+    h1 {
+      font-size: clamp(22px, 4vw, 32px);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+      margin: 0 0 8px;
+      max-width: 640px;
+    }
+
+    .source { font-size: 14px; color: var(--muted); margin: 0 0 8px; }
+    .why { font-size: 13px; color: var(--ok); margin: 0 0 24px; max-width: 560px; }
+
+    .player {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .player iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+    /* Reddit summary */
+    .thread {
+      width: 100%;
+      max-width: 640px;
+      text-align: left;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .thread .post { padding: 20px 22px; border-bottom: 1px solid var(--line); }
+    .thread .meta { font-size: 12px; color: var(--muted); margin: 0 0 6px; }
+    .thread .title { font-size: 17px; font-weight: 700; margin: 0 0 8px; line-height: 1.3; }
+    .thread .body { font-size: 15px; line-height: 1.5; margin: 0; }
+    .thread ul { margin: 12px 0 0; padding-left: 20px; font-size: 14px; line-height: 1.5; }
+    .thread .reply { padding: 14px 22px 14px 34px; border-bottom: 1px solid var(--line); }
+    .thread .reply:last-child { border-bottom: 0; }
+    .thread .reply p:not(.meta) { font-size: 14px; line-height: 1.5; margin: 0; }
+
+    /* Marketplace listings */
+    .filters {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 0 0 16px;
+    }
+
+    .listings {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      text-align: left;
+    }
+
+    .listing {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .listing .photo {
+      aspect-ratio: 1 / 1;
+      background: var(--chip);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .listing .photo svg { width: 46%; height: 46%; color: var(--faint); }
+    .listing .info { padding: 12px 14px 14px; }
+    .listing .price { font-size: 17px; font-weight: 700; margin: 0 0 2px; }
+    .listing .name { font-size: 14px; margin: 0 0 4px; line-height: 1.3; }
+    .listing .where { font-size: 12px; color: var(--muted); margin: 0; }
+
+    .listing .contact {
+      appearance: none;
+      width: 100%;
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    .listing .contact.sent { color: var(--ok); border-color: var(--ok); cursor: default; }
+
+    .demo-note { font-size: 12px; color: var(--faint); margin: 14px 0 0; }
+
+    .actions {
+      margin-top: 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .done {
+      appearance: none;
+      border: 0;
+      background: var(--button);
+      color: var(--button-text);
+      font-size: 15px;
+      font-weight: 500;
+      padding: 13px 28px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    .done:hover { opacity: 0.85; }
+
+    .secondary {
+      appearance: none;
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 500;
+      padding: 12px 26px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    .fallback { font-size: 13px; color: var(--muted); margin: 0; }
+    .fallback a { color: inherit; }
+
+    .ended { margin-top: 40px; max-width: 520px; }
+    .ended h2 { font-size: 22px; font-weight: 700; margin: 0 0 8px; }
+    .ended p { color: var(--muted); font-size: 15px; margin: 0 0 24px; line-height: 1.5; }
+
+    footer {
+      font-size: 12px;
+      color: var(--muted);
+      padding: 0 0 24px;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .mode { color: var(--faint); }
+
+    @media (max-width: 640px) {
+      .listings { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 480px) {
+      header { justify-content: center; }
+      .tab { padding: 8px 12px; }
+      .msg { max-width: 92%; }
+      .listings { grid-template-columns: 1fr; }
+      .listing .photo { aspect-ratio: 16 / 9; }
+      .listing .photo svg { width: 28%; height: 50%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wordmark">Wrapper</div>
+    <nav class="tabs" role="tablist" aria-label="What do you want to look up?">
+      <button class="tab" role="tab" aria-selected="false" data-source="youtube">YouTube</button>
+      <button class="tab" role="tab" aria-selected="false" data-source="reddit">Reddit</button>
+      <button class="tab" role="tab" aria-selected="false" data-source="marketplace">Marketplace</button>
+    </nav>
+  </header>
+
+  <section class="search">
+    <form class="pill-form" id="search-form">
+      <input id="query" type="text" autocomplete="off" disabled maxlength="300"
+             placeholder="Pick a tab to start searching">
+      <button class="go" id="go" type="submit" disabled>Ask</button>
+    </form>
+    <p class="hint" id="hint">Choose where you want to look, then tell Wrapper what you need.</p>
+    <div class="examples" id="examples" hidden></div>
+  </section>
+
+  <main id="main">
+    <p class="empty">Nothing to scroll here. Tell Wrapper what you need.</p>
+  </main>
+
+  <footer>
+    Only what you asked for. No feed, no Shorts, no Reels.<br>
+    <span class="mode">Demo version · all results are built-in examples</span>
+  </footer>
+
+  <script>
+    // =====================================================================
+    // DEMO VERSION
+    // Everything below is scripted so the page can be demonstrated without
+    // any APIs or setup. The "agent" uses simple keyword rules, and each tab
+    // has a few built-in example results. The YouTube videos are real
+    // YouTube videos; the Reddit threads and Marketplace listings are
+    // made-up examples and are labeled that way on the page.
+    // =====================================================================
+
+    const SOURCES = {
+      youtube: {
+        label: "YouTube",
+        placeholder: "What video do you need, and why?",
+        thinking: "Finding a video that matches what you agreed to…",
+        tryThese: ["My Singer sewing needle broke and I need to replace it", "photosynthesis video", "funny cat videos"]
+      },
+      reddit: {
+        label: "Reddit",
+        placeholder: "What do you want to ask Reddit, and why?",
+        thinking: "Reading discussions so you don't have to scroll…",
+        tryThese: ["Best ramen in Boston, I'm visiting this weekend", "what thread should I use for jeans", "see what's trending"]
+      },
+      marketplace: {
+        label: "Marketplace",
+        placeholder: "What are you shopping for, and why?",
+        thinking: "Checking Marketplace for listings that fit…",
+        tryThese: ["I need a desk for my dorm under $100", "used bike", "just browse"]
+      }
+    };
+
+    // ---------- built-in examples ----------
+    // Each example: words that trigger it, the agreed goal, a time limit, and the result.
+    const EXAMPLES = {
+      youtube: [
+        {
+          match: /sew|needle|singer/,
+          goal: "replace the needle on my Singer sewing machine",
+          minutes: 10,
+          video: { id: "AtaUG7pGfHE", title: "How to Replace a Needle on a Singer Sewing Machine", channel: "Singer Sewing Company" },
+          why: "Official how-to from the machine's maker, short and step by step."
+        },
+        {
+          match: /\b(tires?|tyres?|flat|wheels?|cars?)\b/,
+          goal: "change a flat tire",
+          minutes: 15,
+          video: { id: "QjZ5ohr7sGA", title: "How to Change a Tire: A Step-by-Step Guide", channel: "Cars.com" },
+          why: "A full walkthrough from jacking up the car to tightening the lug nuts."
+        },
+        {
+          match: /photosynth|biology|bio\b|plant|chloroplast/,
+          goal: "study photosynthesis for biology homework",
+          minutes: 20,
+          video: { id: "WMgJtmjWHYg", title: "Photosynthesis | Crash Course Biology", channel: "Khan Academy" },
+          why: "An educational explainer that covers the topic your homework is on."
+        }
+      ],
+      reddit: [
+        {
+          match: /ramen|boston|noodle|restaurant|\b(food|eat)\b/,
+          goal: "find a good ramen place in Boston",
+          minutes: 10,
+          thread: {
+            subreddit: "boston",
+            title: "Best ramen in the city?",
+            summary: "Most people recommend going to Cambridge or Allston rather than downtown. Tonkotsu places near Harvard Square come up the most, and people say to go on a weeknight to avoid long lines.",
+            points: ["Harvard Square and Allston come up the most", "Go early or on a weeknight to skip the line", "Most bowls are $16–20"],
+            replies: [
+              "The tonkotsu spot by Harvard Square is still my favorite. Go before 6 or you'll wait.",
+              "Allston has a few great cheap options if you don't mind a short train ride."
+            ]
+          }
+        },
+        {
+          match: /thread|jean|denim|sew/,
+          goal: "pick the right thread for sewing jeans",
+          minutes: 10,
+          thread: {
+            subreddit: "sewing",
+            title: "What thread do you use for jeans?",
+            summary: "The thread agrees: use heavier polyester topstitching thread for the visible seams and regular all-purpose polyester for construction, with a denim/jeans needle (size 90–100).",
+            points: ["Topstitching thread for visible seams", "All-purpose polyester for the rest", "Use a jeans needle, size 90–100"],
+            replies: [
+              "Heavy topstitch thread on top, regular thread in the bobbin. Lengthen your stitch a bit.",
+              "Don't skip the jeans needle. A regular one will break on the thick seams."
+            ]
+          }
+        },
+        {
+          match: /laptop|computer|college|school/,
+          goal: "choose a laptop for college",
+          minutes: 15,
+          thread: {
+            subreddit: "college",
+            title: "Which laptop should I get for school?",
+            summary: "Replies say most majors don't need anything powerful. Battery life, weight, and a good keyboard matter more than specs. Check your school's student discount first.",
+            points: ["Battery life over raw power", "Check the student discount", "Engineering/design majors: check program requirements"],
+            replies: [
+              "Get whatever lasts a full day on battery. You'll never be near an outlet in lecture.",
+              "Your school probably has a discount page. Saved me about $150."
+            ]
+          }
+        }
+      ],
+      marketplace: [
+        {
+          match: /desk|\btables?\b|chair|furniture|dorm/,
+          goal: "buy a desk for my dorm under $100",
+          minutes: 15,
+          filters: "Desks · under $100 · within 10 miles",
+          icon: "desk",
+          listings: [
+            { name: "White writing desk, 40 in.", price: "$45", where: "1.2 mi · listed 2 days ago" },
+            { name: "IKEA desk with drawer", price: "$60", where: "3.8 mi · listed today" },
+            { name: "Small wooden desk, good condition", price: "$85", where: "6.5 mi · listed 5 days ago" }
+          ]
+        },
+        {
+          match: /bike|bicycle|cycling/,
+          goal: "buy a used bike to get around campus",
+          minutes: 15,
+          filters: "Bikes · under $200 · within 10 miles",
+          icon: "bike",
+          listings: [
+            { name: "Commuter bike, medium frame", price: "$120", where: "2.4 mi · listed yesterday" },
+            { name: "Road bike, new tires", price: "$180", where: "4.1 mi · listed 3 days ago" },
+            { name: "Cruiser with basket and lock", price: "$90", where: "7.0 mi · listed today" }
+          ]
+        },
+        {
+          match: /fridge|refrigerator|microwave|appliance/,
+          goal: "buy a mini fridge for my dorm",
+          minutes: 10,
+          filters: "Mini fridges · under $80 · within 10 miles",
+          icon: "fridge",
+          listings: [
+            { name: "Mini fridge, 3.1 cu ft", price: "$50", where: "0.9 mi · listed today" },
+            { name: "Compact fridge with freezer", price: "$70", where: "2.7 mi · listed 4 days ago" },
+            { name: "Small fridge, works great", price: "$40", where: "5.3 mi · listed 1 week ago" }
+          ]
+        }
+      ]
+    };
+
+    const ICONS = {
+      desk: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 8h20M4 8v12M20 8v12M14 8v6h6"/></svg>',
+      bike: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="16" r="3.5"/><circle cx="18.5" cy="16" r="3.5"/><path d="M5.5 16 9 9h6l3.5 7M9 9l3 7 3-7M8 6h3"/></svg>',
+      fridge: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M6 10h12M9 6v2M9 13v3"/></svg>'
+    };
+
+    // ---------- the demo "agent" ----------
+    const FUN = /\b(funny|meme|memes|shorts|reels|tiktok|bored|boring|scroll|scrolling|trending|r\/all|front page|compilation|prank|pranks|fails|drama|gossip|whatever|just browse|browsing|look around)\b/;
+    const REASON = /\b(because|need|needs|broke|broken|fix|fixing|repair|replace|homework|class|assignment|study|studying|exam|test|quiz|project|dorm|moving|visiting|trip|budget|under \$?\d+|for my|for school|for class|for work)\b/;
+
+    // =====================================================================
+
+    const tabs = document.querySelectorAll(".tab");
+    const form = document.getElementById("search-form");
+    const input = document.getElementById("query");
+    const go = document.getElementById("go");
+    const hint = document.getElementById("hint");
+    const examplesEl = document.getElementById("examples");
+    const main = document.getElementById("main");
+
+    let source = null;
+    let messages = [];   // { role: "user" | "assistant", text, decision }
+    let contract = null; // { goal, minutes, example }
+    let timer = null;
+    let endsAt = 0;
+    let player = null;
+    let runId = 0;       // ignores late replies after the user moves on
+
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    }
+
+    function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    function thinkingHtml(text) {
+      return '<div class="thinking"><div class="dots"><span></span><span></span><span></span></div><span>' + esc(text) + '</span></div>';
+    }
+
+    function setTabsLocked(locked) { tabs.forEach(t => t.disabled = locked); }
+
+    function updateGo() { go.disabled = !source || input.disabled || input.value.trim() === ""; }
+
+    function renderExamples() {
+      if (!source) { examplesEl.hidden = true; return; }
+      examplesEl.innerHTML = '<span class="try">Try:</span>' +
+        SOURCES[source].tryThese.map(t => '<button class="ex" type="button">' + esc(t) + '</button>').join("");
+      examplesEl.hidden = false;
+      examplesEl.querySelectorAll(".ex").forEach(b => b.addEventListener("click", () => {
+        input.value = b.textContent;
+        updateGo();
+        form.requestSubmit();
+      }));
+    }
+
+    function resetAll() {
+      runId++;
+      stopTimer();
+      destroyPlayer();
+      messages = [];
+      contract = null;
+      setTabsLocked(false);
+      input.disabled = !source;
+      input.value = "";
+      updateGo();
+      if (source) hint.textContent = "Tell Wrapper what you need from " + SOURCES[source].label + " and why.";
+      renderExamples();
+      main.innerHTML = '<p class="empty">Nothing to scroll here. Tell Wrapper what you need.</p>';
+    }
+
+    // ---------- tabs ----------
+    tabs.forEach(tab => {
+      tab.addEventListener("click", () => {
+        source = tab.dataset.source;
+        tabs.forEach(t => t.setAttribute("aria-selected", String(t === tab)));
+        input.placeholder = SOURCES[source].placeholder;
+        resetAll();
+        input.focus();
+      });
+    });
+
+    input.addEventListener("input", updateGo);
+
+    // ---------- step 1: the request ----------
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+      const q = input.value.trim();
+      if (!source || !q) return;
+      messages = [{ role: "user", text: q }];
+      contract = null;
+      input.disabled = true;
+      updateGo();
+      setTabsLocked(true);
+      examplesEl.hidden = true;
+      hint.textContent = "Wrapper is deciding whether this is worth opening " + SOURCES[source].label + " for.";
+      askAgent();
+    });
+
+    // ---------- step 2: the argue conversation ----------
+    function renderChat(extraHtml) {
+      const bubbles = messages.map(m => {
+        if (m.role === "user") return '<div class="msg user">' + esc(m.text) + '</div>';
+        const denied = m.decision === "deny";
+        return '<div class="msg agent' + (denied ? " denied" : "") + '"><span class="who">' +
+               (denied ? "Wrapper · not yet" : "Wrapper") + '</span>' + esc(m.text) + '</div>';
+      }).join("");
+      main.innerHTML = '<div class="chat">' + bubbles + '</div>' + (extraHtml || "");
+    }
+
+    async function askAgent() {
+      const myRun = ++runId;
+      renderChat(thinkingHtml("Thinking it over…"));
+      await wait(900);
+      if (myRun !== runId) return;
+
+      const out = decide();
+      messages.push({ role: "assistant", text: out.reply, decision: out.decision });
+
+      if (out.decision === "approve") {
+        contract = { goal: out.example.goal, minutes: out.example.minutes, example: out.example };
+        renderChat(contractHtml());
+        document.getElementById("start").addEventListener("click", startSession);
+        document.getElementById("change").addEventListener("click", resetAll);
+        hint.textContent = "Approved. Start when you're ready.";
+      } else {
+        renderChat(replyBoxHtml(out.decision === "deny" ? "Argue your case" : "Reply"));
+        wireReplyBox();
+        hint.textContent = out.decision === "deny"
+          ? "Not approved yet. Explain what you actually need it for."
+          : "Wrapper needs a bit more detail.";
+      }
+    }
+
+    // The demo agent's rules:
+    //  - entertainment / browsing words -> deny
+    //  - no reason given yet -> ask what it's for
+    //  - a reason given, and the topic matches a built-in example -> approve
+    //  - a reason given, but no example for that topic -> explain the demo's limits
+    function decide() {
+      const userMsgs = messages.filter(m => m.role === "user");
+      const last = userMsgs[userMsgs.length - 1].text.toLowerCase();
+      const all = userMsgs.map(m => m.text).join(" ").toLowerCase();
+      const asked = messages.filter(m => m.decision === "ask").length;
+
+      if (FUN.test(last)) {
+        const denials = {
+          youtube: "That sounds like entertainment, and that's exactly what Wrapper is here to block. What do you actually need to learn or fix?",
+          reddit: "Browsing what's trending is how the scrolling starts. What specific question do you need answered?",
+          marketplace: "Browsing Marketplace with no goal turns into an hour fast. What do you need to buy?"
+        };
+        return { decision: "deny", reply: denials[source] };
+      }
+
+      const example = EXAMPLES[source].find(x => x.match.test(all));
+
+      if (!REASON.test(all) && asked === 0) {
+        const questions = {
+          youtube: "What do you need this video for? A class, a repair, something you're making?",
+          reddit: "What's it for? Tell me what you're trying to decide or figure out.",
+          marketplace: "What do you need it for, and what's your budget?"
+        };
+        return { decision: "ask", reply: questions[source] };
+      }
+
+      if (!example) {
+        const topics = {
+          youtube: "sewing machine needles, changing a tire, or photosynthesis",
+          reddit: "ramen in Boston, thread for jeans, or picking a college laptop",
+          marketplace: "a dorm desk, a used bike, or a mini fridge"
+        };
+        return { decision: "ask", reply: "That sounds reasonable, but this demo only has examples for " + topics[source] + ". Try one of those." };
+      }
+
+      const approvals = {
+        youtube: "That's a real task. I'll allow one video for it.",
+        reddit: "Fair question. I'll read the thread for you and pull out the answer.",
+        marketplace: "Okay, a specific purchase. I'll show matching listings only, no feed."
+      };
+      return { decision: "approve", reply: approvals[source], example };
+    }
+
+    function replyBoxHtml(label) {
+      return '<div class="reply-box"><form class="pill-form" id="reply-form">' +
+               '<input id="reply" type="text" autocomplete="off" maxlength="300" placeholder="Explain why you need it…">' +
+               '<button class="go" id="reply-go" type="submit" disabled>' + esc(label) + '</button>' +
+             '</form>' +
+             '<div class="row" style="margin-top:14px"><button class="secondary" type="button" id="give-up">Never mind</button></div></div>';
+    }
+
+    function wireReplyBox() {
+      const f = document.getElementById("reply-form");
+      const r = document.getElementById("reply");
+      const b = document.getElementById("reply-go");
+      r.addEventListener("input", () => b.disabled = r.value.trim() === "");
+      r.focus();
+      f.addEventListener("submit", e => {
+        e.preventDefault();
+        const t = r.value.trim();
+        if (!t) return;
+        messages.push({ role: "user", text: t });
+        askAgent();
+      });
+      document.getElementById("give-up").addEventListener("click", resetAll);
+    }
+
+    function contractHtml() {
+      const where = {
+        youtube: "YouTube (one video, no recommendations)",
+        reddit: "Reddit (one summarized thread, no feed)",
+        marketplace: "Marketplace (matching listings only, no feed)"
+      };
+      return '<div class="contract">' +
+               '<p class="label">Approved · Session contract</p>' +
+               '<dl>' +
+                 '<dt>Goal</dt><dd>' + esc(contract.goal) + '</dd>' +
+                 '<dt>Where</dt><dd>' + where[source] + '</dd>' +
+                 '<dt>Time limit</dt><dd>' + contract.minutes + ' minutes</dd>' +
+               '</dl>' +
+               '<div class="row">' +
+                 '<button class="done" type="button" id="start">Start session</button>' +
+                 '<button class="secondary" type="button" id="change">Change request</button>' +
+               '</div>' +
+             '</div>';
+    }
+
+    // ---------- step 3: the session ----------
+    async function startSession() {
+      const myRun = ++runId;
+      hint.textContent = "Session in progress. Wrapper is only showing what you agreed to.";
+      main.innerHTML = thinkingHtml(SOURCES[source].thinking);
+      await wait(1200);
+      if (myRun !== runId) return;
+      renderResult(contract.example);
+      startTimer(contract.minutes);
+    }
+
+    function sessionBar() {
+      return '<div class="session-bar">' +
+               '<span class="intent">You\'re here to: <strong>' + esc(contract.goal) + '</strong></span>' +
+               '<span class="timer" id="timer">' + contract.minutes + ':00 left</span>' +
+             '</div>';
+    }
+
+    function doneButton(extra) {
+      return '<div class="actions"><button class="done" type="button" id="done">I\'m done</button>' + (extra || "") + '</div>';
+    }
+
+    function renderResult(ex) {
+      let html = sessionBar();
+
+      if (source === "youtube") {
+        const v = ex.video;
+        html +=
+          '<h1>' + esc(v.title) + '</h1>' +
+          '<p class="source">' + esc(v.channel) + '</p>' +
+          '<p class="why">Why this one: ' + esc(ex.why) + '</p>' +
+          '<div class="player"><iframe id="yt" ' +
+            'src="https://www.youtube-nocookie.com/embed/' + v.id + '?rel=0&modestbranding=1&playsinline=1&enablejsapi=1" ' +
+            'title="' + esc(v.title) + '" ' +
+            'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" ' +
+            'referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>' +
+          doneButton('<p class="fallback">Video not loading? <a href="https://www.youtube.com/watch?v=' + v.id + '" target="_blank" rel="noopener">Open it on YouTube</a></p>');
+      }
+
+      if (source === "reddit") {
+        const t = ex.thread;
+        html +=
+          '<div class="thread">' +
+            '<div class="post">' +
+              '<p class="meta">r/' + esc(t.subreddit) + ' · summarized by Wrapper</p>' +
+              '<p class="title">' + esc(t.title) + '</p>' +
+              '<p class="body">' + esc(t.summary) + '</p>' +
+              '<ul>' + t.points.map(p => '<li>' + esc(p) + '</li>').join("") + '</ul>' +
+            '</div>' +
+            t.replies.map((r, i) => '<div class="reply"><p class="meta">' + (i === 0 ? "Top reply" : "Reply") + '</p><p>' + esc(r) + '</p></div>').join("") +
+          '</div>' +
+          '<p class="demo-note">Example thread written for this demo.</p>' +
+          doneButton();
+      }
+
+      if (source === "marketplace") {
+        html +=
+          '<p class="filters">' + esc(ex.filters) + '</p>' +
+          '<div class="listings">' +
+            ex.listings.map(l =>
+              '<div class="listing">' +
+                '<div class="photo">' + ICONS[ex.icon] + '</div>' +
+                '<div class="info">' +
+                  '<p class="price">' + esc(l.price) + '</p>' +
+                  '<p class="name">' + esc(l.name) + '</p>' +
+                  '<p class="where">' + esc(l.where) + '</p>' +
+                  '<button class="contact" type="button">Message seller</button>' +
+                '</div>' +
+              '</div>').join("") +
+          '</div>' +
+          '<p class="demo-note">Example listings written for this demo.</p>' +
+          doneButton();
+      }
+
+      main.innerHTML = html;
+      main.querySelectorAll(".contact").forEach(b => b.addEventListener("click", () => {
+        b.textContent = "Message sent (demo)";
+        b.classList.add("sent");
+        b.disabled = true;
+      }));
+      document.getElementById("done").addEventListener("click", () => endSession("Nice work. Wrapper closed what you were looking at."));
+      if (document.getElementById("yt")) attachEndDetection();
+    }
+
+    // ---------- timer ----------
+    function startTimer(minutes) {
+      stopTimer();
+      endsAt = Date.now() + minutes * 60000;
+      tick();
+      timer = setInterval(tick, 1000);
+    }
+
+    function tick() {
+      const el = document.getElementById("timer");
+      const left = Math.max(0, Math.round((endsAt - Date.now()) / 1000));
+      if (el) {
+        el.textContent = Math.floor(left / 60) + ":" + String(left % 60).padStart(2, "0") + " left";
+        el.classList.toggle("low", left <= 60);
+      }
+      if (left <= 0) endSession("Time's up. Wrapper closed the session you agreed to.");
+    }
+
+    function stopTimer() { clearInterval(timer); timer = null; }
+
+    // ---------- close the session when the video ends ----------
+    // Uses YouTube's player script (from youtube.com). If it can't load, the
+    // video still plays; the session just won't auto-close at the end.
+    function loadYouTubeApi() {
+      if (window.YT && window.YT.Player) return Promise.resolve(true);
+      if (!loadYouTubeApi.promise) {
+        loadYouTubeApi.promise = new Promise(resolve => {
+          const prev = window.onYouTubeIframeAPIReady;
+          window.onYouTubeIframeAPIReady = () => { if (prev) prev(); resolve(true); };
+          const s = document.createElement("script");
+          s.src = "https://www.youtube.com/iframe_api";
+          s.onerror = () => resolve(false);
+          document.head.appendChild(s);
+          setTimeout(() => resolve(false), 6000);
+        });
+      }
+      return loadYouTubeApi.promise;
+    }
+
+    async function attachEndDetection() {
+      const myRun = runId;
+      const ok = await loadYouTubeApi();
+      const frame = document.getElementById("yt");
+      if (!ok || !frame || myRun !== runId || !(window.YT && window.YT.Player)) return;
+      player = new YT.Player(frame, {
+        events: {
+          onStateChange: e => {
+            if (e.data === YT.PlayerState.ENDED) endSession("The video finished, so Wrapper closed it.");
+          }
+        }
+      });
+    }
+
+    function destroyPlayer() {
+      if (player && player.destroy) { try { player.destroy(); } catch {} }
+      player = null;
+    }
+
+    // ---------- end ----------
+    // Replacing the result removes the iframe, which stops the video and leaves
+    // nothing to click.
+    function endSession(message) {
+      runId++;
+      stopTimer();
+      destroyPlayer();
+      contract = null;
+      setTabsLocked(false);
+      main.innerHTML =
+        '<div class="ended">' +
+          '<h2>Session ended</h2>' +
+          '<p>' + esc(message) + '</p>' +
+          '<button class="secondary" type="button" id="again">Start a new request</button>' +
+        '</div>';
+      hint.textContent = "Session over. Want something else? You'll need to make your case again.";
+      document.getElementById("again").addEventListener("click", () => { resetAll(); if (source) input.focus(); });
+    }
+  </script>
+</body>
+</html>
